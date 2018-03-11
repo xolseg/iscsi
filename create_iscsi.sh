@@ -3,12 +3,13 @@ name=$1
 size=$2
 user=$3
 password=$4
-rbd create "$name" --size "$size" --pool scsi
+pool=$5
+rbd create "$name" --size "$size" --pool "$pool"
 echo "rbd create"
-rbdname=$( rbd map "$name" --pool scsi --name client.admin)
+rbdname=$( rbd map "$name" --pool "$pool" --name client.admin)
 echo "rbd map"
 #echo "Create name $name, size object storage $size";
-rbd --image $name info --pool scsi
+rbd --image $name info --pool "$pool"
 echo "rbd info";
 echo "scsi/"$name"" >> /etc/ceph/rbdmap
 targetcli /backstores/block create $name $rbdname
@@ -30,5 +31,5 @@ targetcli /iscsi/$name1/tpg1 set auth password=$password
 targetcli /iscsi/$name1/tpg1 set attribute demo_mode_write_protect=0
 targetcli /iscsi/$name1/tpg1 set attribute generate_node_acls=1
 targetcli saveconfig
-echo -en "\033[37;1;41m переделать у клиента InitiatorName=iqn.1994-05.com.redhat:$name \033[0m"
+echo -en "\033[37;1;41m use client wwn InitiatorName=iqn.1994-05.com.redhat:$name \033[0m"
 systemctl restart targetd; systemctl restart target
